@@ -1,0 +1,27 @@
+{
+  "name": "main-gateway",
+  "version": "1.0.0",
+  "description": "Main gateway",
+  "scripts": {
+    "start": "nodemon bin/run | bunyan"
+  },
+  "dependencies": {
+    "axios": "^0.19.2",
+    "body-parser": "^1.19.0",
+    "bunyan": "^1.8.12",
+    "express": "^4.16.4",
+    "fs-extra": "^9.1.0",
+    "mime": "^2.5.2",
+    "multer": "^1.4.2",
+    "semver": "^7.3.2",
+    "streamifier": "^0.1.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.2.1",
+    "eslint": "^5.14.1",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.16.0",
+    "nodemon": "^2.0.4"
+  }
+}

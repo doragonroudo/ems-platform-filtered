@@ -1,0 +1,52 @@
+#!/usr/bin/env node
+
+const axios = require('axios')
+const http = require('http')
+
+const config = require('../config')[process.env.NODE_ENV || 'development']
+
+const log = config.log()
+const service = require('../server/service')(config)
+
+const server = http.createServer(service)
+
+// * Important : a service should not have fixed port, but should randomly choose one
+server.listen(0) // 0 - pick a random open port
+
+server.on('listening', () => {
+  const registerService = () => axios.put(`http://localhost:3001/register/${config.name}/${config.version}/${server.address().port}`)
+  const unregisterService = () => axios.delete(`http://localhost:3001/unregister/${config.name}/${config.version}/${server.address().port}`)
+  
+  registerService()
+
+  const interval = setInterval(registerService, 20 * 1000) // call register every 20 seconds, so it wont expired
+
+  const cleanup = async () => {
+    clearInterval(interval)
+    await unregisterService()
+  }
+
+  process.on('uncaughtException', async () => { // close if got UncaughtException
+    await cleanup()
+    process.exit(0)
+  })
+
+  process.on('SIGINT', async () => { // close if CTRL-C
+    await cleanup()
+    process.exit(0)
+  })
+
+  process.on('SIGTERM', async () => { // an actual process died
+    await cleanup()
+    process.exit(0)
+  })
+
+  // ! this is for testing cleanup method when got uncaughtException
+  // setTimeout(() => {
+  //   throw new Error('Something happened')
+  // }, 10000)
+
+  log.info(
+    `Hi there! I'm listening on port ${server.address().port} in ${service.get('env')} mode.`,
+  )
+})
